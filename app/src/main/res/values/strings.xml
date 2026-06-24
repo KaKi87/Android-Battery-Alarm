@@ -20,4 +20,9 @@
     <string name="repeat_three_times">3</string>
     <string name="repeat_four_times">4</string>
     <string name="repeat_infinite">∞</string>
+
+    <string name="exact_alarm_permission_title">Allow exact alarms</string>
+    <string name="exact_alarm_permission_message">Battery Alarm needs permission to schedule exact alarms so it can notify you at the right battery level. Without it, alarms may be delayed.</string>
+    <string name="exact_alarm_permission_open_settings">Open settings</string>
+    <string name="exact_alarm_permission_dismiss">Not now</string>
 </resources>
