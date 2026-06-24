@@ -26,9 +26,18 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew test assembleRelease
+          find app/build/outputs/apk -type f -name '*.apk'
+
+      - name: Locate release APK
+        id: apk
+        run: |
+          APK_PATH="$(find app/build/outputs/apk -path '*/release/*.apk' -type f | head -n 1)"
+          test -n "$APK_PATH"
+          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v3.0.1
         with:
           generate_release_notes: true
-          files: app/build/outputs/apk/release/app-release.apk
+          overwrite_files: true
+          files: ${{ steps.apk.outputs.path }}
