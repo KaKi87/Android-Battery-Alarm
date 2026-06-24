@@ -20,4 +20,9 @@
     <string name="repeat_three_times">3</string>
     <string name="repeat_four_times">4</string>
     <string name="repeat_infinite">∞</string>
+
+    <string name="exact_alarm_permission_title">Permitir alarmas exactas</string>
+    <string name="exact_alarm_permission_message">Alarma de Batería necesita permiso para programar alarmas exactas y así avisarte en el nivel de batería correcto. Sin él, las alarmas pueden retrasarse.</string>
+    <string name="exact_alarm_permission_open_settings">Abrir ajustes</string>
+    <string name="exact_alarm_permission_dismiss">Ahora no</string>
 </resources>
