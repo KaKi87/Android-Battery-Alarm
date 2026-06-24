@@ -8,6 +8,7 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.BatteryManager
+import android.os.Build
 import android.util.Log
 import com.mikelcalvo.batteryalarm.R
 import com.mikelcalvo.batteryalarm.model.AlarmRepeatTimes
@@ -92,7 +93,11 @@ class BatteryLevelReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getBroadcast(context, alarm.alarmType.ordinal, intent, flag)
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent)
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent)
+        }
     }
 
     private fun stopBatteryAlarm(context: Context, alarmType: AlarmType) {
