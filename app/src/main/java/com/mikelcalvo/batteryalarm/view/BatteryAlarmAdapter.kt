@@ -9,7 +9,6 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,13 +113,29 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
         val notificationSoundTextView = dialog.findViewById<TextView>(R.id.notificationSound)
         val selectedNotificationSoundTitle = sharedPreferences.getString("notificationSound_${alarm.alarmType.name}", context.getString(R.string.default_tone))
         val selectedNotificationSoundUri = sharedPreferences.getString("notificationSoundUri_${alarm.alarmType.name}", null)
+        val defaultAlarmSoundUri = getDefaultAlarmSoundUri(context)
 
-        selectedNotificationSound = if(selectedNotificationSoundUri != null) {
-            NotificationSound(selectedNotificationSoundTitle!!, Uri.parse(selectedNotificationSoundUri))
-        } else {
-            NotificationSound(selectedNotificationSoundTitle!!, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        selectedNotificationSound = when (selectedNotificationSoundUri) {
+            SILENT_NOTIFICATION_SOUND_URI -> {
+                NotificationSound(
+                    selectedNotificationSoundTitle ?: context.getString(R.string.silent_vibration_only),
+                    null
+                )
+            }
+            null -> {
+                NotificationSound(
+                    selectedNotificationSoundTitle ?: context.getString(R.string.default_tone),
+                    defaultAlarmSoundUri
+                )
+            }
+            else -> {
+                NotificationSound(
+                    selectedNotificationSoundTitle ?: context.getString(R.string.default_tone),
+                    Uri.parse(selectedNotificationSoundUri)
+                )
+            }
         }
-        notificationSoundTextView.text = selectedNotificationSoundTitle
+        notificationSoundTextView.text = selectedNotificationSound?.title
         notificationSoundTextView.setOnClickListener {
             showNotificationSoundsDialog(context, notificationSoundTextView)
         }
@@ -173,12 +188,20 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
         saveButton.setOnClickListener {
             val editor = sharedPreferences.edit()
 
-            if(notificationSoundTextView.text.toString() != context.getString(R.string.default_tone)) {
-                editor.putString("notificationSoundUri_${alarm.alarmType.name}", selectedNotificationSound!!.uri.toString())
-                editor.putString("notificationSound_${alarm.alarmType.name}", selectedNotificationSound!!.title)
-            } else {
-                editor.remove("notificationSoundUri_${alarm.alarmType.name}")
-                editor.remove("notificationSound_${alarm.alarmType.name}")
+            when {
+                selectedNotificationSound?.uri == null -> {
+                    editor.putString("notificationSoundUri_${alarm.alarmType.name}", SILENT_NOTIFICATION_SOUND_URI)
+                    editor.putString("notificationSound_${alarm.alarmType.name}", selectedNotificationSound?.title)
+                }
+                selectedNotificationSound?.uri == defaultAlarmSoundUri &&
+                    selectedNotificationSound?.title == context.getString(R.string.default_tone) -> {
+                    editor.remove("notificationSoundUri_${alarm.alarmType.name}")
+                    editor.remove("notificationSound_${alarm.alarmType.name}")
+                }
+                else -> {
+                    editor.putString("notificationSoundUri_${alarm.alarmType.name}", selectedNotificationSound?.uri.toString())
+                    editor.putString("notificationSound_${alarm.alarmType.name}", selectedNotificationSound?.title)
+                }
             }
             editor.putInt("repeatTimes_${alarm.alarmType.name}", getSelectedRepeatOption(repeatOne, repeatTwo, repeatThree, repeatFour, repeatInfinite))
 
@@ -211,8 +234,8 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
 
         val notificationSounds = getNotificationSounds(context)
 
-        val notificationSoundAdapter = NotificationSoundAdapter(context, notificationSounds, { uri ->
-            playNotificationSound(context, uri)
+        val notificationSoundAdapter = NotificationSoundAdapter(context, notificationSounds, { notificationSound ->
+            playNotificationSound(context, notificationSound.uri)
         }) { _selectedNotificationSound ->
             notificationSoundTextView.text = _selectedNotificationSound.title
             selectedNotificationSound = _selectedNotificationSound
@@ -228,7 +251,10 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
             setType(RingtoneManager.TYPE_ALARM)
         }
         val cursor = ringtoneManager.cursor
-        val notificationSounds = mutableListOf<NotificationSound>()
+        val notificationSounds = mutableListOf(
+            NotificationSound(context.getString(R.string.default_tone), getDefaultAlarmSoundUri(context)),
+            NotificationSound(context.getString(R.string.silent_vibration_only), null)
+        )
 
         while (cursor.moveToNext()) {
             val title = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
@@ -240,9 +266,14 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
         return notificationSounds
     }
 
-    private fun playNotificationSound(context: Context, uri: Uri) {
+    private fun playNotificationSound(context: Context, uri: Uri?) {
         mediaPlayer?.stop()
         mediaPlayer?.release()
+        mediaPlayer = null
+
+        if (uri == null) {
+            return
+        }
 
         mediaPlayer = MediaPlayer().apply {
             setDataSource(context, uri)
@@ -261,6 +292,10 @@ class BatteryAlarmAdapter(private val alarms: List<BatteryAlarmSettings>) :
             }
             prepareAsync()
         }
+    }
+
+    private fun getDefaultAlarmSoundUri(context: Context): Uri {
+        return Uri.parse("android.resource://${context.packageName}/${R.raw.default_alarm}")
     }
 
     private fun selectRepeatOption(

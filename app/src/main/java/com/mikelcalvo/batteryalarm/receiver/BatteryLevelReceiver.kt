@@ -14,6 +14,7 @@ import com.mikelcalvo.batteryalarm.model.AlarmRepeatTimes
 import com.mikelcalvo.batteryalarm.model.AlarmState
 import com.mikelcalvo.batteryalarm.model.AlarmType
 import com.mikelcalvo.batteryalarm.model.BatteryAlarmSettings
+import com.mikelcalvo.batteryalarm.model.SILENT_NOTIFICATION_SOUND_URI
 import kotlin.math.roundToInt
 
 
@@ -60,6 +61,8 @@ class BatteryLevelReceiver : BroadcastReceiver() {
 
                 val selectedUri = if(savedNotificationSound == "default") {
                     defaultAlarmSound
+                } else if (savedNotificationSound == SILENT_NOTIFICATION_SOUND_URI) {
+                    null
                 } else {
                     Uri.parse(savedNotificationSound)
                 }
@@ -80,11 +83,7 @@ class BatteryLevelReceiver : BroadcastReceiver() {
 
     private fun startBatteryAlarm(context: Context, alarm: BatteryAlarmSettings) {
         val intent = Intent(context, AlarmBroadcastReceiver::class.java)
-        val alarmSoundString = if (alarm.notificationTone == null) {
-            "default"
-        } else {
-            alarm.notificationTone.toString()
-        }
+        val alarmSoundString = alarm.notificationTone?.toString() ?: SILENT_NOTIFICATION_SOUND_URI
 
         intent.putExtra("alarmSound", alarmSoundString)
         intent.putExtra("repeatingTimes", alarm.repeatTimes.value)

@@ -13,6 +13,7 @@
     <string name="save">Save</string>
     <string name="saved">Saved</string>
     <string name="default_tone">Default Tone</string>
+    <string name="silent_vibration_only">Silent (vibration only)</string>
 
     <string name="repeat_once">1</string>
     <string name="repeat_two_times">2</string>

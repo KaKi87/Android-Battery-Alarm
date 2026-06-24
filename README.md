@@ -13,7 +13,7 @@ This app was made with GPT4 in a day.
 
 - Set alarms for battery low and battery full levels
 - Customize alarm thresholds in percentage
-- Choose custom notification tones for each alarm
+- Choose default, silent (vibration only), or custom notification tones for each alarm
 - Enable or disable alarms independently
 - Configure alarm repetition and repetition interval
 
@@ -27,9 +27,13 @@ This app was made with GPT4 in a day.
 1. Open the app and select the desired alarm type (Battery Low or Battery Full).
 2. Use the slider to set the desired battery percentage threshold for the alarm.
 3. Check or uncheck the "Alarm Enabled" switch to enable or disable the alarm.
-4. Select a custom notification tone for the alarm.
+4. Select the default tone, silent vibration-only mode, or a custom notification tone for the alarm.
 5. Configure alarm repetition and repetition interval if desired.
-6. The app will notify you with the selected tone when the battery reaches the configured threshold.
+6. The app will notify you with the selected tone or vibration mode when the battery reaches the configured threshold.
+
+## Releases
+
+Pushing a `v*` Git tag publishes the generated release APK to GitHub Releases automatically.
 
 ## License
 

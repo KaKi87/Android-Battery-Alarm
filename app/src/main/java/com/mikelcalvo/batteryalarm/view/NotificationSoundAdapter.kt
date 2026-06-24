@@ -1,7 +1,6 @@
 package com.mikelcalvo.batteryalarm.view
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import com.mikelcalvo.batteryalarm.model.NotificationSound
 class NotificationSoundAdapter(
     private val context: Context,
     private val notificationSounds: List<NotificationSound>,
-    private val itemClickListener: (Uri) -> Unit,
+    private val itemClickListener: (NotificationSound) -> Unit,
     private val onItemSelected: (NotificationSound) -> Unit
 ) : RecyclerView.Adapter<NotificationSoundAdapter.ViewHolder>() {
 
@@ -33,7 +32,7 @@ class NotificationSoundAdapter(
         holder.soundTitle.text = notificationSound.title
         holder.soundTitle.setTextColor(ContextCompat.getColor(context, R.color.textColorLight))
         holder.itemView.setOnClickListener {
-            itemClickListener(notificationSound.uri)
+            itemClickListener(notificationSound)
             onItemSelected(notificationSound)
         }
     }

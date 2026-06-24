@@ -13,6 +13,7 @@
     <string name="save">Guardar</string>
     <string name="saved">Guardado</string>
     <string name="default_tone">Tono por Defecto</string>
+    <string name="silent_vibration_only">Silencio (solo vibración)</string>
 
     <string name="repeat_once">1</string>
     <string name="repeat_two_times">2</string>
